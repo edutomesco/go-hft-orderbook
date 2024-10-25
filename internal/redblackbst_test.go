@@ -1,22 +1,22 @@
-package hftorderbook
+package internal
 
 import (
-	"testing"
 	"math/rand"
+	"testing"
 	//"fmt"
 )
 
-func TestBSTEmpty(t *testing.T) {
-	rb := NewBST()
+func TestRedBlackEmpty(t *testing.T) {
+	rb := NewRedBlackBST()
 	if rb.Size() != 0 || !rb.IsEmpty() {
-		t.Errorf("BST should be empty")
+		t.Errorf("Red Black BST should be empty")
 	}
 }
 
-func TestBSTBasic(t *testing.T) {
-	st := NewBST()
+func TestRedBlackBasic(t *testing.T) {
+	st := NewRedBlackBST()
 	keys := make([]float64, 0)
-	for i := 0; i < 10; i+=1 {
+	for i := 0; i < 10; i += 1 {
 		k := rand.Float64()
 		keys = append(keys, k)
 		st.Put(k, nil)
@@ -26,20 +26,20 @@ func TestBSTBasic(t *testing.T) {
 		t.Errorf("size should equals 10, got %d", st.Size())
 	}
 	if st.IsEmpty() {
-		t.Errorf("st should not be empty")	
+		t.Errorf("st should not be empty")
 	}
 
-	for _, k := range keys { 
+	for _, k := range keys {
 		if !st.Contains(k) {
 			t.Errorf("st should contain the key %0.8f", k)
 		}
 	}
 }
 
-func TestBSTHeight(t *testing.T) {
-	st := NewBST()
+func TestRedBlackHeight(t *testing.T) {
+	st := NewRedBlackBST()
 	n := 100000
-	for i := 0; i < n; i+=1 {
+	for i := 0; i < n; i += 1 {
 		k := rand.Float64()
 		st.Put(k, nil)
 	}
@@ -48,19 +48,19 @@ func TestBSTHeight(t *testing.T) {
 		t.Errorf("size should equals %d, got %d", n, st.Size())
 	}
 	if st.IsEmpty() {
-		t.Errorf("st should not be empty")	
+		t.Errorf("st should not be empty")
 	}
 
 	height := st.Height()
-	if height < 17 || height > 51 {
-		t.Errorf("red black bst height should be in range lgN <= height <= 3*lgN, in our case from 17 to 51, but we got %d", height)
+	if height < 17 || height > 34 {
+		t.Errorf("red black bst height should be in range lgN <= height <= 2*lgN, in our case from 17 to 34, but we got %d", height)
 	}
 }
 
-func TestBSTMinMax(t *testing.T) {
-	st := NewBST()
-	for i := 0; i < 10; i+=1 {
-		st.Put(float64(10 - i), nil)
+func TestRedBlackMinMax(t *testing.T) {
+	st := NewRedBlackBST()
+	for i := 0; i < 10; i += 1 {
+		st.Put(float64(10-i), nil)
 	}
 
 	min := 1.0
@@ -74,10 +74,10 @@ func TestBSTMinMax(t *testing.T) {
 	}
 }
 
-func TestBSTMinMaxCachedOnDelete(t *testing.T) {
-	st := NewBST()
-	for i := 0; i < 100; i+=1 {
-		st.Put(float64(100 - i), nil)
+func TestRedBlackMinMaxCachedOnDelete(t *testing.T) {
+	st := NewRedBlackBST()
+	for i := 0; i < 100; i += 1 {
+		st.Put(float64(100-i), nil)
 	}
 
 	min := 1.0
@@ -89,19 +89,15 @@ func TestBSTMinMaxCachedOnDelete(t *testing.T) {
 	if st.Max() != max {
 		t.Errorf("min %0.8f != %0.8f", st.Max(), max)
 	}
-	st.Delete(max)
-	max = 99.0
-	if st.Max() != max {
-		t.Errorf("min %0.8f != %0.8f", st.Max(), max)
-	}
-	if st.Size() != 99 {
-		t.Errorf("size should be 99")
-	}
 
-	for i := 1; i < 20; i += 1 {
+	st.DeleteMin()
+	st.DeleteMin()
+	for i := 3; i < 20; i += 1 {
 		st.Delete(float64(i))
 	}
-	for i := 99; i > 70; i -= 1 {
+	st.DeleteMax()
+	st.DeleteMax()
+	for i := 98; i > 70; i -= 1 {
 		st.Delete(float64(i))
 	}
 
@@ -112,12 +108,12 @@ func TestBSTMinMaxCachedOnDelete(t *testing.T) {
 
 	max = 70.0
 	if st.Max() != max {
-		t.Errorf("max %0.8f != %0.8f", st.Max(), max)
+		t.Errorf("min %0.8f != %0.8f", st.Max(), max)
 	}
 }
 
-func TestBSTFloor(t *testing.T) {
-	st := NewBST()
+func TestRedBlackFloor(t *testing.T) {
+	st := NewRedBlackBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(20 - 2*i)
 		st.Put(k, nil)
@@ -135,8 +131,8 @@ func TestBSTFloor(t *testing.T) {
 	}
 }
 
-func TestBSTCeiling(t *testing.T) {
-	st := NewBST()
+func TestRedBlackCeiling(t *testing.T) {
+	st := NewRedBlackBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(20 - 2*i)
 		st.Put(k, nil)
@@ -154,9 +150,9 @@ func TestBSTCeiling(t *testing.T) {
 	}
 }
 
-func TestBSTSelect(t *testing.T) {
-	st := NewBST()
-	for i := 0; i < 10; i+=1 {
+func TestRedBlackSelect(t *testing.T) {
+	st := NewRedBlackBST()
+	for i := 0; i < 10; i += 1 {
 		k := float64(10 - i)
 		st.Put(k, nil)
 	}
@@ -172,10 +168,10 @@ func TestBSTSelect(t *testing.T) {
 	}
 }
 
-func TestBSTRank(t *testing.T) {
-	st := NewBST()
+func TestRedBlackRank(t *testing.T) {
+	st := NewRedBlackBST()
 	keys := make([]float64, 0)
-	for i := 0; i < 10; i+=1 {
+	for i := 0; i < 10; i += 1 {
 		k := float64(10 - i)
 		keys = append(keys, k)
 		st.Put(k, nil)
@@ -197,9 +193,9 @@ func TestBSTRank(t *testing.T) {
 	}
 }
 
-func TestBSTKeys(t *testing.T) {
-	st := NewBST()
-	for i := 0; i < 10; i+=1 {
+func TestRedBlackKeys(t *testing.T) {
+	st := NewRedBlackBST()
+	for i := 0; i < 10; i += 1 {
 		k := float64(10 - i)
 		st.Put(k, nil)
 	}
@@ -226,9 +222,51 @@ func TestBSTKeys(t *testing.T) {
 	}
 }
 
-func TestBSTDelete(t *testing.T) {
-	st := NewBST()
-	for i := 0; i < 10; i+=1 {
+func TestRedBlackDeleteMin(t *testing.T) {
+	st := NewRedBlackBST()
+	for i := 0; i < 10; i += 1 {
+		k := float64(10 - i)
+		st.Put(k, nil)
+	}
+
+	st.DeleteMin()
+	if st.Size() != 9 {
+		t.Errorf("tree size should shrink")
+	}
+
+	if st.Contains(1.0) {
+		t.Errorf("minimum element should be removed from the tree")
+	}
+
+	if !st.IsRedBlack() {
+		t.Errorf("certification failed")
+	}
+}
+
+func TestRedBlackDeleteMax(t *testing.T) {
+	st := NewRedBlackBST()
+	for i := 0; i < 10; i += 1 {
+		k := float64(i)
+		st.Put(k, nil)
+	}
+
+	st.DeleteMax()
+	if st.Size() != 9 {
+		t.Errorf("tree size should shrink")
+	}
+
+	if st.Contains(9.0) {
+		t.Errorf("minimum element should be removed from the tree")
+	}
+
+	if !st.IsRedBlack() {
+		t.Errorf("certification failed")
+	}
+}
+
+func TestRedBlackDelete(t *testing.T) {
+	st := NewRedBlackBST()
+	for i := 0; i < 10; i += 1 {
 		k := float64(i)
 		st.Put(k, nil)
 	}
@@ -242,11 +280,15 @@ func TestBSTDelete(t *testing.T) {
 	if st.Contains(key) {
 		t.Errorf("minimum element should be removed from the tree")
 	}
+
+	if !st.IsRedBlack() {
+		t.Errorf("certification failed")
+	}
 }
 
-func TestBSTPutLinkedListOrder(t *testing.T) {
-	st := NewBST()
-	for i := 0; i < 100; i+=1 {
+func TestRedBlackPutLinkedListOrder(t *testing.T) {
+	st := NewRedBlackBST()
+	for i := 0; i < 100; i += 1 {
 		k := rand.Float64()
 		st.Put(k, nil)
 	}
@@ -260,22 +302,24 @@ func TestBSTPutLinkedListOrder(t *testing.T) {
 	}
 }
 
-func TestBSTPutDeleteLinkedListOrder(t *testing.T) {
-	st := NewBST()
+func TestRedBlackPutDeleteLinkedListOrder(t *testing.T) {
+	st := NewRedBlackBST()
 	n := 1000
 	for i := 0; i < n; i += 1 {
 		k := rand.Float64()
 		st.Put(k, nil)
 	}
 
-	// deleting random 90% of the nodes
-	k := int(float64(n)*0.9)
+	// deleting from both ends and in the middle 90% of the nodes
+	k := int(float64(n) * 0.3)
 	for i := 0; i < k; i += 1 {
+		st.DeleteMin()
 		k := st.Select(rand.Intn(st.Size()))
 		st.Delete(k)
+		st.DeleteMax()
 	}
 
-	if st.Size() != n-k {
+	if st.Size() != n-3*k {
 		t.Errorf("incorrect tree size %d", st.Size())
 	}
 
@@ -288,15 +332,15 @@ func TestBSTPutDeleteLinkedListOrder(t *testing.T) {
 	}
 }
 
-func BenchmarkBSTLimitedRandomInsertWithCaching(b *testing.B) {
-	st := NewBST()
+func benchmarkRedBlackLimitedRandomInsertWithCaching(n int, b *testing.B) {
+	st := NewRedBlackBST()
 
 	// maximum number of levels in average is 10k
-	limitslist := make([]float64, 10000)
+	limitslist := make([]float64, n)
 	for i := range limitslist {
 		limitslist[i] = rand.Float64()
 	}
-	
+
 	// preallocate empty orders
 	orders := make([]*Order, 0, b.N)
 	for i := 0; i < b.N; i += 1 {
@@ -331,9 +375,21 @@ func BenchmarkBSTLimitedRandomInsertWithCaching(b *testing.B) {
 
 			// caching limit
 			limitscache[price] = &l
-			
+
 			// inserting into tree
 			st.Put(l.Price, &l)
 		}
 	}
+}
+
+func BenchmarkRedBlack5kLevelsRandomInsertWithCaching(b *testing.B) {
+	benchmarkRedBlackLimitedRandomInsertWithCaching(5000, b)
+}
+
+func BenchmarkRedBlack10kLevelsRandomInsertWithCaching(b *testing.B) {
+	benchmarkRedBlackLimitedRandomInsertWithCaching(10000, b)
+}
+
+func BenchmarkRedBlack20kLevelsRandomInsertWithCaching(b *testing.B) {
+	benchmarkRedBlackLimitedRandomInsertWithCaching(20000, b)
 }

@@ -1,4 +1,4 @@
-package hftorderbook
+package internal
 
 // Doubly linked orders queue
 // TODO: this should be compared with ring buffer queue performance

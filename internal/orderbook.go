@@ -1,7 +1,8 @@
-package hftorderbook
+package internal
 
 import (
 	"fmt"
+	"go-hft-orderbook/internal/datasources"
 	"sync"
 )
 
@@ -14,10 +15,11 @@ type Orderbook struct {
 
 	bidLimitsCache map[float64]*LimitOrder
 	askLimitsCache map[float64]*LimitOrder
-	pool *sync.Pool
+	pool           *sync.Pool
+	cacheClient    datasources.Cache
 }
 
-func NewOrderbook() Orderbook {
+func NewOrderbook(cc datasources.Cache) Orderbook {
 	bids := NewRedBlackBST()
 	asks := NewRedBlackBST()
 	return Orderbook{
@@ -26,12 +28,13 @@ func NewOrderbook() Orderbook {
 
 		bidLimitsCache: make(map[float64]*LimitOrder, MaxLimitsNum),
 		askLimitsCache: make(map[float64]*LimitOrder, MaxLimitsNum),
-		pool: &sync.Pool {
-			New: func()interface{} {
+		pool: &sync.Pool{
+			New: func() interface{} {
 				limit := NewLimitOrder(0.0)
 				return &limit
 			},
 		},
+		cacheClient: cc,
 	}
 }
 
@@ -66,7 +69,7 @@ func (this *Orderbook) Add(price float64, o *Order) {
 func (this *Orderbook) Cancel(o *Order) {
 	limit := o.Limit
 	limit.Delete(o)
-	
+
 	if limit.Size() == 0 {
 		// remove the limit if there are no orders
 		if o.BidOrAsk {
@@ -97,7 +100,7 @@ func (this *Orderbook) clearLimit(price float64, bidOrAsk bool) {
 	} else {
 		limit = this.askLimitsCache[price]
 	}
-	
+
 	if limit == nil {
 		panic(fmt.Sprintf("there is no such price limit %0.8f", price))
 	}
