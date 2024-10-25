@@ -12,9 +12,7 @@ var ErrKeyNotFound = errors.New("key not found")
 
 type Cache interface {
 	Set(ctx context.Context, key string, data []byte) error
-	SAdd(ctx context.Context, key string, member string) error
 	Get(ctx context.Context, key string) ([]byte, error)
-	GetMembersByKey(ctx context.Context, key string) ([]string, error)
 	Del(ctx context.Context, key string) error
 }
 
@@ -48,26 +46,8 @@ func (r Redis) Set(ctx context.Context, key string, data []byte) error {
 	return nil
 }
 
-func (r Redis) SAdd(ctx context.Context, key string, member string) error {
-	if err := r.client.SAdd(ctx, fmt.Sprintf("\"%s\"", key), member).Err(); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (r Redis) Get(ctx context.Context, key string) ([]byte, error) {
 	res, err := r.client.Get(ctx, key).Bytes()
-	if res == nil {
-		return nil, ErrKeyNotFound
-	}
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func (r Redis) GetMembersByKey(ctx context.Context, key string) ([]string, error) {
-	res, err := r.client.SMembers(ctx, fmt.Sprintf("\"%s\"", key)).Result()
 	if res == nil {
 		return nil, ErrKeyNotFound
 	}
