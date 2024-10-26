@@ -1,23 +1,30 @@
-package internal
+package internal_test
 
 import (
+	"go-hft-orderbook/internal"
 	"math/rand"
 	"testing"
 )
 
 func TestLimitOrderEmpty(t *testing.T) {
+	setup()
+	defer teardown()
+
 	price := 3.141593
-	l := NewLimitOrder(price)
+	l := internal.NewLimitOrder(price, cache)
 	if l.Price != price || l.TotalVolume() != 0.0 {
 		t.Errorf("limit order init error")
 	}
 }
 
 func TestLimitOrderAddOrder(t *testing.T) {
+	setup()
+	defer teardown()
+
 	price := 3.141593
 	volume := 25.0
-	l := NewLimitOrder(price)
-	o := &Order{Volume: volume}
+	l := internal.NewLimitOrder(price, cache)
+	o := &internal.Order{Volume: volume}
 	l.Enqueue(o)
 
 	if l.TotalVolume() != volume {
@@ -32,12 +39,15 @@ func TestLimitOrderAddOrder(t *testing.T) {
 }
 
 func TestLimitOrderAddMultipleOrders(t *testing.T) {
+	setup()
+	defer teardown()
+
 	price := 3.141593
 	volume := 0.0
-	l := NewLimitOrder(price)
+	l := internal.NewLimitOrder(price, cache)
 	n := 100
 	for i := 0; i < n; i += 1 {
-		o := &Order{Id: i, Volume: rand.Float64()}
+		o := &internal.Order{Id: i, Volume: rand.Float64()}
 		volume += o.Volume
 		l.Enqueue(o)
 	}

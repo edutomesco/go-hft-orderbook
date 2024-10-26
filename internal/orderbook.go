@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"go-hft-orderbook/internal/datasources"
 	"sync"
 )
 
@@ -16,12 +15,12 @@ type Orderbook struct {
 	bidLimitsCache map[float64]*LimitOrder
 	askLimitsCache map[float64]*LimitOrder
 	pool           *sync.Pool
-	cacheClient    datasources.Cache
 }
 
-func NewOrderbook(cc datasources.Cache) Orderbook {
+func NewOrderbook(cr Cache) Orderbook {
 	bids := NewRedBlackBST()
 	asks := NewRedBlackBST()
+
 	return Orderbook{
 		Bids: &bids,
 		Asks: &asks,
@@ -30,11 +29,10 @@ func NewOrderbook(cc datasources.Cache) Orderbook {
 		askLimitsCache: make(map[float64]*LimitOrder, MaxLimitsNum),
 		pool: &sync.Pool{
 			New: func() interface{} {
-				limit := NewLimitOrder(0.0)
+				limit := NewLimitOrder(0.0, cr)
 				return &limit
 			},
 		},
-		cacheClient: cc,
 	}
 }
 

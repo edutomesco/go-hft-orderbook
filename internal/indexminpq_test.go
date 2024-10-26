@@ -1,13 +1,14 @@
-package internal
+package internal_test
 
 import (
+	"go-hft-orderbook/internal"
 	"math/rand"
 	"testing"
 	//"fmt"
 )
 
 func TestIndexMinPQOne(t *testing.T) {
-	minpq := NewIndexMinPQ(10)
+	minpq := internal.NewIndexMinPQ(10)
 	minpq.Insert(0, 5.0)
 	res := minpq.Top()
 
@@ -17,7 +18,7 @@ func TestIndexMinPQOne(t *testing.T) {
 }
 
 func TestIndexMinPQTwo(t *testing.T) {
-	minpq := NewIndexMinPQ(10)
+	minpq := internal.NewIndexMinPQ(10)
 	minpq.Insert(0, 6.0)
 	minpq.Insert(1, 5.0)
 
@@ -33,7 +34,7 @@ func TestIndexMinPQTwo(t *testing.T) {
 }
 
 func TestIndexMinPQThree(t *testing.T) {
-	minpq := NewIndexMinPQ(10)
+	minpq := internal.NewIndexMinPQ(10)
 	minpq.Insert(0, 6.0)
 	minpq.Insert(1, 5.0)
 	minpq.Insert(2, 4.0)
@@ -57,7 +58,7 @@ func TestIndexMinPQThree(t *testing.T) {
 }
 
 func TestIndexMinPQRandom(t *testing.T) {
-	minpq := NewIndexMinPQ(100)
+	minpq := internal.NewIndexMinPQ(100)
 	emptyindex := 0
 	for i := 0; i < 1000; i += 1 {
 		emptyindex = i
@@ -85,7 +86,10 @@ func TestIndexMinPQRandom(t *testing.T) {
 }
 
 func BenchmarkIndexMinPQLimitedRandomInsertWithCaching(b *testing.B) {
-	pq := NewIndexMinPQ(10000)
+	setup()
+	defer teardown()
+
+	pq := internal.NewIndexMinPQ(10000)
 
 	// maximum number of levels in average is 10k
 	limitslist := make([]float64, 10000)
@@ -94,15 +98,15 @@ func BenchmarkIndexMinPQLimitedRandomInsertWithCaching(b *testing.B) {
 	}
 
 	// preallocate empty orders
-	orders := make([]*Order, 0, b.N)
+	orders := make([]*internal.Order, 0, b.N)
 	for i := 0; i < b.N; i += 1 {
-		orders = append(orders, &Order{})
+		orders = append(orders, &internal.Order{})
 	}
 
 	// measure insertion time
 	b.ResetTimer()
 
-	limitscache := make(map[float64]*LimitOrder)
+	limitscache := make(map[float64]*internal.LimitOrder)
 	for i := 0; i < b.N; i += 1 {
 		// create a new order
 		o := orders[i]
@@ -122,7 +126,7 @@ func BenchmarkIndexMinPQLimitedRandomInsertWithCaching(b *testing.B) {
 			limitscache[price].Enqueue(o)
 		} else {
 			// new limit
-			l := NewLimitOrder(price)
+			l := internal.NewLimitOrder(price, cache)
 			l.Enqueue(o)
 
 			// caching limit

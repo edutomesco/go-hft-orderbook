@@ -1,11 +1,16 @@
 package internal
 
+import (
+	"sync"
+)
+
 // Doubly linked orders queue
 // TODO: this should be compared with ring buffer queue performance
 type ordersQueue struct {
 	head *Order
 	tail *Order
 	size int
+	mu   sync.Mutex
 }
 
 func NewOrdersQueue() ordersQueue {
@@ -21,6 +26,9 @@ func (this *ordersQueue) IsEmpty() bool {
 }
 
 func (this *ordersQueue) Enqueue(o *Order) {
+	this.mu.Lock()
+	defer this.mu.Unlock()
+
 	tail := this.tail
 	this.tail = o
 	if tail != nil {
@@ -34,6 +42,9 @@ func (this *ordersQueue) Enqueue(o *Order) {
 }
 
 func (this *ordersQueue) Dequeue() *Order {
+	this.mu.Lock()
+	defer this.mu.Unlock()
+
 	if this.size == 0 {
 		return nil
 	}
@@ -49,6 +60,9 @@ func (this *ordersQueue) Dequeue() *Order {
 }
 
 func (this *ordersQueue) Delete(o *Order) {
+	this.mu.Lock()
+	defer this.mu.Unlock()
+
 	prev := o.Prev
 	next := o.Next
 	if prev != nil {

@@ -1,14 +1,17 @@
-package internal
+package internal_test
 
 import (
+	"go-hft-orderbook/internal"
 	"math"
 	"math/rand"
 	"testing"
-	//"fmt"
 )
 
 func TestOrderbookEmpty(t *testing.T) {
-	b := NewOrderbook(nil)
+	setup()
+	defer teardown()
+
+	b := internal.NewOrderbook(cache)
 	if b.BLength() != 0 {
 		t.Errorf("book should be empty")
 	}
@@ -18,15 +21,19 @@ func TestOrderbookEmpty(t *testing.T) {
 }
 
 func TestOrderbookAddOne(t *testing.T) {
-	b := NewOrderbook(nil)
-	bid := &Order{
+	setup()
+	defer teardown()
+
+	b := internal.NewOrderbook(cache)
+	bid := &internal.Order{
 		BidOrAsk: true,
 	}
-	ask := &Order{
+	ask := &internal.Order{
 		BidOrAsk: false,
 	}
 	b.Add(1.0, bid)
 	b.Add(2.0, ask)
+
 	if b.BLength() != 1 {
 		t.Errorf("book should have 1 bid")
 	}
@@ -36,16 +43,19 @@ func TestOrderbookAddOne(t *testing.T) {
 }
 
 func TestOrderbookAddMultiple(t *testing.T) {
-	b := NewOrderbook(nil)
+	setup()
+	defer teardown()
+
+	b := internal.NewOrderbook(cache)
 	for i := 0; i < 100; i += 1 {
-		bid := &Order{
+		bid := &internal.Order{
 			BidOrAsk: true,
 		}
 		b.Add(float64(i), bid)
 	}
 
 	for i := 100; i < 200; i += 1 {
-		bid := &Order{
+		bid := &internal.Order{
 			BidOrAsk: false,
 		}
 		b.Add(float64(i), bid)
@@ -68,12 +78,15 @@ func TestOrderbookAddMultiple(t *testing.T) {
 }
 
 func TestOrderbookAddAndCancel(t *testing.T) {
-	b := NewOrderbook(nil)
-	bid1 := &Order{
+	setup()
+	defer teardown()
+
+	b := internal.NewOrderbook(cache)
+	bid1 := &internal.Order{
 		Id:       1,
 		BidOrAsk: true,
 	}
-	bid2 := &Order{
+	bid2 := &internal.Order{
 		Id:       2,
 		BidOrAsk: true,
 	}
@@ -89,13 +102,16 @@ func TestOrderbookAddAndCancel(t *testing.T) {
 }
 
 func TestGetVolumeAtLimit(t *testing.T) {
-	b := NewOrderbook(nil)
-	bid1 := &Order{
+	setup()
+	defer teardown()
+
+	b := internal.NewOrderbook(cache)
+	bid1 := &internal.Order{
 		Id:       1,
 		BidOrAsk: true,
 		Volume:   0.1,
 	}
-	bid2 := &Order{
+	bid2 := &internal.Order{
 		Id:       2,
 		BidOrAsk: true,
 		Volume:   0.2,
@@ -108,7 +124,7 @@ func TestGetVolumeAtLimit(t *testing.T) {
 }
 
 func benchmarkOrderbookLimitedRandomInsert(n int, b *testing.B) {
-	book := NewOrderbook(nil)
+	book := internal.NewOrderbook(cache)
 
 	// maximum number of levels in average is 10k
 	limitslist := make([]float64, n)
@@ -117,9 +133,9 @@ func benchmarkOrderbookLimitedRandomInsert(n int, b *testing.B) {
 	}
 
 	// preallocate empty orders
-	orders := make([]*Order, 0, b.N)
+	orders := make([]*internal.Order, 0, b.N)
 	for i := 0; i < b.N; i += 1 {
-		orders = append(orders, &Order{})
+		orders = append(orders, &internal.Order{})
 	}
 
 	// measure insertion time

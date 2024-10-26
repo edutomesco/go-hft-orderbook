@@ -1,13 +1,14 @@
-package internal
+package internal_test
 
 import (
+	"go-hft-orderbook/internal"
 	"math/rand"
 	"testing"
 	//"fmt"
 )
 
 func TestMinPQOne(t *testing.T) {
-	minpq := NewMinPQ(10)
+	minpq := internal.NewMinPQ(10)
 	minpq.Insert(5.0)
 	res := minpq.Top()
 
@@ -17,7 +18,7 @@ func TestMinPQOne(t *testing.T) {
 }
 
 func TestMinPQTwo(t *testing.T) {
-	minpq := NewMinPQ(10)
+	minpq := internal.NewMinPQ(10)
 	minpq.Insert(6.0)
 	minpq.Insert(5.0)
 
@@ -33,7 +34,7 @@ func TestMinPQTwo(t *testing.T) {
 }
 
 func TestMinPQThree(t *testing.T) {
-	minpq := NewMinPQ(10)
+	minpq := internal.NewMinPQ(10)
 	minpq.Insert(6.0)
 	minpq.Insert(5.0)
 	minpq.Insert(4.0)
@@ -57,7 +58,7 @@ func TestMinPQThree(t *testing.T) {
 }
 
 func TestMinPQRandom(t *testing.T) {
-	minpq := NewMinPQ(100)
+	minpq := internal.NewMinPQ(100)
 	for i := 0; i < 1000; i += 1 {
 		if minpq.Size() == 100 {
 			minpq.DelTop()
@@ -84,7 +85,10 @@ func TestMinPQRandom(t *testing.T) {
 }
 
 func benchmarkMinPQLimitedRandomInsertWithCaching(n int, b *testing.B) {
-	pq := NewMinPQ(n)
+	setup()
+	defer teardown()
+
+	pq := internal.NewMinPQ(n)
 
 	// maximum number of levels in average is ~10k
 	limitslist := make([]float64, n)
@@ -93,15 +97,15 @@ func benchmarkMinPQLimitedRandomInsertWithCaching(n int, b *testing.B) {
 	}
 
 	// preallocate empty orders
-	orders := make([]*Order, 0, b.N)
+	orders := make([]*internal.Order, 0, b.N)
 	for i := 0; i < b.N; i += 1 {
-		orders = append(orders, &Order{})
+		orders = append(orders, &internal.Order{})
 	}
 
 	// measure insertion time
 	b.ResetTimer()
 
-	limitscache := make(map[float64]*LimitOrder)
+	limitscache := make(map[float64]*internal.LimitOrder)
 	for i := 0; i < b.N; i += 1 {
 		// create a new order
 		o := orders[i]
@@ -121,7 +125,7 @@ func benchmarkMinPQLimitedRandomInsertWithCaching(n int, b *testing.B) {
 			limitscache[price].Enqueue(o)
 		} else {
 			// new limit
-			l := NewLimitOrder(price)
+			l := internal.NewLimitOrder(price, cache)
 			l.Enqueue(o)
 
 			// caching limit

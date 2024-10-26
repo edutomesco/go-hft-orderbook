@@ -1,20 +1,21 @@
-package internal
+package internal_test
 
 import (
+	"go-hft-orderbook/internal"
 	"math/rand"
 	"testing"
 	//"fmt"
 )
 
 func TestBSTEmpty(t *testing.T) {
-	rb := NewBST()
+	rb := internal.NewBST()
 	if rb.Size() != 0 || !rb.IsEmpty() {
 		t.Errorf("BST should be empty")
 	}
 }
 
 func TestBSTBasic(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	keys := make([]float64, 0)
 	for i := 0; i < 10; i += 1 {
 		k := rand.Float64()
@@ -37,7 +38,7 @@ func TestBSTBasic(t *testing.T) {
 }
 
 func TestBSTHeight(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	n := 100000
 	for i := 0; i < n; i += 1 {
 		k := rand.Float64()
@@ -58,7 +59,7 @@ func TestBSTHeight(t *testing.T) {
 }
 
 func TestBSTMinMax(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	for i := 0; i < 10; i += 1 {
 		st.Put(float64(10-i), nil)
 	}
@@ -75,7 +76,7 @@ func TestBSTMinMax(t *testing.T) {
 }
 
 func TestBSTMinMaxCachedOnDelete(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	for i := 0; i < 100; i += 1 {
 		st.Put(float64(100-i), nil)
 	}
@@ -117,7 +118,7 @@ func TestBSTMinMaxCachedOnDelete(t *testing.T) {
 }
 
 func TestBSTFloor(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(20 - 2*i)
 		st.Put(k, nil)
@@ -136,7 +137,7 @@ func TestBSTFloor(t *testing.T) {
 }
 
 func TestBSTCeiling(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(20 - 2*i)
 		st.Put(k, nil)
@@ -155,7 +156,7 @@ func TestBSTCeiling(t *testing.T) {
 }
 
 func TestBSTSelect(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(10 - i)
 		st.Put(k, nil)
@@ -173,7 +174,7 @@ func TestBSTSelect(t *testing.T) {
 }
 
 func TestBSTRank(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	keys := make([]float64, 0)
 	for i := 0; i < 10; i += 1 {
 		k := float64(10 - i)
@@ -198,7 +199,7 @@ func TestBSTRank(t *testing.T) {
 }
 
 func TestBSTKeys(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(10 - i)
 		st.Put(k, nil)
@@ -227,7 +228,7 @@ func TestBSTKeys(t *testing.T) {
 }
 
 func TestBSTDelete(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(i)
 		st.Put(k, nil)
@@ -245,7 +246,7 @@ func TestBSTDelete(t *testing.T) {
 }
 
 func TestBSTPutLinkedListOrder(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	for i := 0; i < 100; i += 1 {
 		k := rand.Float64()
 		st.Put(k, nil)
@@ -261,7 +262,7 @@ func TestBSTPutLinkedListOrder(t *testing.T) {
 }
 
 func TestBSTPutDeleteLinkedListOrder(t *testing.T) {
-	st := NewBST()
+	st := internal.NewBST()
 	n := 1000
 	for i := 0; i < n; i += 1 {
 		k := rand.Float64()
@@ -289,7 +290,10 @@ func TestBSTPutDeleteLinkedListOrder(t *testing.T) {
 }
 
 func BenchmarkBSTLimitedRandomInsertWithCaching(b *testing.B) {
-	st := NewBST()
+	setup()
+	defer teardown()
+
+	st := internal.NewBST()
 
 	// maximum number of levels in average is 10k
 	limitslist := make([]float64, 10000)
@@ -298,15 +302,15 @@ func BenchmarkBSTLimitedRandomInsertWithCaching(b *testing.B) {
 	}
 
 	// preallocate empty orders
-	orders := make([]*Order, 0, b.N)
+	orders := make([]*internal.Order, 0, b.N)
 	for i := 0; i < b.N; i += 1 {
-		orders = append(orders, &Order{})
+		orders = append(orders, &internal.Order{})
 	}
 
 	// measure insertion time
 	b.ResetTimer()
 
-	limitscache := make(map[float64]*LimitOrder)
+	limitscache := make(map[float64]*internal.LimitOrder)
 	for i := 0; i < b.N; i += 1 {
 		// create a new order
 		o := orders[i]
@@ -326,7 +330,7 @@ func BenchmarkBSTLimitedRandomInsertWithCaching(b *testing.B) {
 			limitscache[price].Enqueue(o)
 		} else {
 			// new limit
-			l := NewLimitOrder(price)
+			l := internal.NewLimitOrder(price, cache)
 			l.Enqueue(o)
 
 			// caching limit

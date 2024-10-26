@@ -1,8 +1,0 @@
-services:
-  redis:
-    container_name: redis
-    image: redis
-    ports:
-      - "5401:5432"
-      - "6301:6379"
-    command: redis-server --requirepass testing

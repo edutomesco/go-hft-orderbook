@@ -1,20 +1,21 @@
-package internal
+package internal_test
 
 import (
+	"go-hft-orderbook/internal"
 	"math/rand"
 	"testing"
 	//"fmt"
 )
 
 func TestRedBlackEmpty(t *testing.T) {
-	rb := NewRedBlackBST()
+	rb := internal.NewRedBlackBST()
 	if rb.Size() != 0 || !rb.IsEmpty() {
 		t.Errorf("Red Black BST should be empty")
 	}
 }
 
 func TestRedBlackBasic(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	keys := make([]float64, 0)
 	for i := 0; i < 10; i += 1 {
 		k := rand.Float64()
@@ -37,7 +38,7 @@ func TestRedBlackBasic(t *testing.T) {
 }
 
 func TestRedBlackHeight(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	n := 100000
 	for i := 0; i < n; i += 1 {
 		k := rand.Float64()
@@ -58,7 +59,7 @@ func TestRedBlackHeight(t *testing.T) {
 }
 
 func TestRedBlackMinMax(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	for i := 0; i < 10; i += 1 {
 		st.Put(float64(10-i), nil)
 	}
@@ -75,7 +76,7 @@ func TestRedBlackMinMax(t *testing.T) {
 }
 
 func TestRedBlackMinMaxCachedOnDelete(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	for i := 0; i < 100; i += 1 {
 		st.Put(float64(100-i), nil)
 	}
@@ -113,7 +114,7 @@ func TestRedBlackMinMaxCachedOnDelete(t *testing.T) {
 }
 
 func TestRedBlackFloor(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(20 - 2*i)
 		st.Put(k, nil)
@@ -132,7 +133,7 @@ func TestRedBlackFloor(t *testing.T) {
 }
 
 func TestRedBlackCeiling(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(20 - 2*i)
 		st.Put(k, nil)
@@ -151,7 +152,7 @@ func TestRedBlackCeiling(t *testing.T) {
 }
 
 func TestRedBlackSelect(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(10 - i)
 		st.Put(k, nil)
@@ -169,7 +170,7 @@ func TestRedBlackSelect(t *testing.T) {
 }
 
 func TestRedBlackRank(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	keys := make([]float64, 0)
 	for i := 0; i < 10; i += 1 {
 		k := float64(10 - i)
@@ -194,7 +195,7 @@ func TestRedBlackRank(t *testing.T) {
 }
 
 func TestRedBlackKeys(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(10 - i)
 		st.Put(k, nil)
@@ -223,7 +224,7 @@ func TestRedBlackKeys(t *testing.T) {
 }
 
 func TestRedBlackDeleteMin(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(10 - i)
 		st.Put(k, nil)
@@ -244,7 +245,7 @@ func TestRedBlackDeleteMin(t *testing.T) {
 }
 
 func TestRedBlackDeleteMax(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(i)
 		st.Put(k, nil)
@@ -265,7 +266,7 @@ func TestRedBlackDeleteMax(t *testing.T) {
 }
 
 func TestRedBlackDelete(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	for i := 0; i < 10; i += 1 {
 		k := float64(i)
 		st.Put(k, nil)
@@ -287,7 +288,7 @@ func TestRedBlackDelete(t *testing.T) {
 }
 
 func TestRedBlackPutLinkedListOrder(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	for i := 0; i < 100; i += 1 {
 		k := rand.Float64()
 		st.Put(k, nil)
@@ -303,7 +304,7 @@ func TestRedBlackPutLinkedListOrder(t *testing.T) {
 }
 
 func TestRedBlackPutDeleteLinkedListOrder(t *testing.T) {
-	st := NewRedBlackBST()
+	st := internal.NewRedBlackBST()
 	n := 1000
 	for i := 0; i < n; i += 1 {
 		k := rand.Float64()
@@ -333,7 +334,10 @@ func TestRedBlackPutDeleteLinkedListOrder(t *testing.T) {
 }
 
 func benchmarkRedBlackLimitedRandomInsertWithCaching(n int, b *testing.B) {
-	st := NewRedBlackBST()
+	setup()
+	defer teardown()
+
+	st := internal.NewRedBlackBST()
 
 	// maximum number of levels in average is 10k
 	limitslist := make([]float64, n)
@@ -342,15 +346,15 @@ func benchmarkRedBlackLimitedRandomInsertWithCaching(n int, b *testing.B) {
 	}
 
 	// preallocate empty orders
-	orders := make([]*Order, 0, b.N)
+	orders := make([]*internal.Order, 0, b.N)
 	for i := 0; i < b.N; i += 1 {
-		orders = append(orders, &Order{})
+		orders = append(orders, &internal.Order{})
 	}
 
 	// measure insertion time
 	b.ResetTimer()
 
-	limitscache := make(map[float64]*LimitOrder)
+	limitscache := make(map[float64]*internal.LimitOrder)
 	for i := 0; i < b.N; i += 1 {
 		// create a new order
 		o := orders[i]
@@ -370,7 +374,7 @@ func benchmarkRedBlackLimitedRandomInsertWithCaching(n int, b *testing.B) {
 			limitscache[price].Enqueue(o)
 		} else {
 			// new limit
-			l := NewLimitOrder(price)
+			l := internal.NewLimitOrder(price, cache)
 			l.Enqueue(o)
 
 			// caching limit
