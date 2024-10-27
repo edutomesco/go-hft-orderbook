@@ -30,30 +30,30 @@ func (this *LimitOrder) TotalVolume() float64 {
 func (this *LimitOrder) Size() int {
 	res, _ := this.cacheRepository.Size(context.Background(), fmt.Sprintf("%f", this.Price))
 	return res
-	//return this.orders.Size()
 }
 
 func (this *LimitOrder) Enqueue(o *Order) {
-	//this.orders.Enqueue(o)
 	o.Limit = this
-	_ = this.cacheRepository.Enqueue(context.Background(), fmt.Sprintf("%f", this.Price), o)
+	if err := this.cacheRepository.Enqueue(context.Background(), fmt.Sprintf("%f", this.Price), o); err != nil {
+		panic(fmt.Sprintf("error from redis: %v", err.Error()))
+	}
 
 	this.totalVolume += o.Volume
 }
 
 func (this *LimitOrder) Dequeue() *Order {
-	/*if this.orders.IsEmpty() {
-		return nil
-	}*/
-
-	ok, _ := this.cacheRepository.IsEmpty(context.Background(), fmt.Sprintf("%f", this.Price))
+	ok, err := this.cacheRepository.IsEmpty(context.Background(), fmt.Sprintf("%f", this.Price))
+	if err != nil {
+		panic(fmt.Sprintf("error from redis: %v", err.Error()))
+	}
 	if ok {
 		return nil
 	}
 
-	//o := this.orders.Dequeue()
-
-	o, _ := this.cacheRepository.Dequeue(context.Background(), fmt.Sprintf("%f", this.Price))
+	o, err := this.cacheRepository.Dequeue(context.Background(), fmt.Sprintf("%f", this.Price))
+	if err != nil {
+		panic(fmt.Sprintf("error from redis: %v", err.Error()))
+	}
 
 	this.totalVolume -= o.Volume
 	return o
@@ -64,17 +64,17 @@ func (this *LimitOrder) Delete(o *Order) {
 		panic("order does not belong to the limit")
 	}
 
-	//this.orders.Delete(o)
-	_ = this.cacheRepository.Delete(context.Background(), fmt.Sprintf("%f", this.Price), o)
+	if err := this.cacheRepository.Delete(context.Background(), fmt.Sprintf("%f", this.Price), o); err != nil {
+		panic(fmt.Sprintf("error from redis: %v", err.Error()))
+	}
 
 	o.Limit = nil
 	this.totalVolume -= o.Volume
 }
 
 func (this *LimitOrder) Clear() {
-	/*q := NewOrdersQueue()
-	this.orders = &q*/
-
-	_ = this.cacheRepository.DeleteAll(context.Background(), fmt.Sprintf("%f", this.Price))
+	if err := this.cacheRepository.DeleteAll(context.Background(), fmt.Sprintf("%f", this.Price)); err != nil {
+		panic(fmt.Sprintf("error from redis: %v", err.Error()))
+	}
 	this.totalVolume = 0
 }
